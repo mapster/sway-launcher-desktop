@@ -211,6 +211,10 @@ function shouldAutostart() {
         unless-exists*)
             [[ ! -e $filename ]]
             ;;
+        GSettings*)
+            local value="$(eval gsettings get ${condition#* })"
+            [ "$value" = "true" ]
+            ;;
         *)
             return 0
             ;;
