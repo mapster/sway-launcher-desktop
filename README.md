@@ -8,7 +8,7 @@ Despite its name, it does not (read: no longer) depend on the Sway window manage
 ## Features
 - Lists and executes available binaries
 - Lists and executes .desktop files (entries as well as actions)
-- Does not depend on `xdg-utils`. Just pure bash and `awk`
+- Does not depend on `xdg-utils`. Just pure bash and `awk` (specifically gawk)
 - Shows a preview window containing `whatis` info of binaries and the `Comment=` section of .desktop files
 - History support which will highlight recently used entries
 - Colored output and glyphs for the different entry types
@@ -18,7 +18,9 @@ Despite its name, it does not (read: no longer) depend on the Sway window manage
 
 ## Installation
 
-Make sure you have `fzf` installed and download this repository. 
+Make sure you have `fzf` and `awk` installed and download this repository. 
+To be precise, the script specifically depends on GNU awk (`gawk`) so check what flavour your distribution provides.
+
 Arch Linux users can also grab it from the AUR (thanks @turtlewit)
 
 * [sway-launcher-desktop](https://aur.archlinux.org/packages/sway-launcher-desktop/)
@@ -37,6 +39,11 @@ You can override the default icons/glyphs by setting the appropriate GLYPH_ vari
 set $menu exec $term -e env GLYPH_COMMAND="" GLYPH_DESKTOP="" GLYPH_PROMPT="? " sway-launcher
 ```
 
+If `fzf` is not in your `$PATH` you can specify the path by supplying a value to the `FZF_COMMAND` variable.
+```
+set $menu exec $term -e env FZF_COMMAND="/path/to/fzf" sway-launcher
+```
+
 By default, the launcher will use a generic & WM-agnostic command to launch the selected program. 
 However, it will detect if its output is being piped to another program and merely print 
 the selected command in that case - instead of launching it by itself. You can use this to integrate the launcher with other tools.
@@ -51,6 +58,9 @@ Some of your desktop entries will probably be TUI programs that expect to be lau
 
 ### Configure application autostart
 If you want to be able to autostart applications , this script provides a function to handle them for you. Simply run `sway-launcher-desktop.sh autostart` in your `.bashrc`, at the end of your i3/sway config, or wherever else you deem fit.
+
+### Configure fzf preview window
+You can configure the fzf preview window using the environment variable `PREVIEW_WINDOW` (default: `up:2:noborder`). For example, if you prefer a taller window, you could use `PREVIEW_WINDOW=5:up`. The content of `PREVIEW_WINDOW` is passed to the `--preview-window` option, so check out the fzf manual for further details.
 
 ## Extending the launcher
 

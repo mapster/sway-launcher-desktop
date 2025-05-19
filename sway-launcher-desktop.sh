@@ -12,6 +12,7 @@ trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 IFS=$'\n\t'
 DEL=$'\34'
 
+FZF_COMMAND="${FZF_COMMAND:=fzf}"
 TERMINAL_COMMAND="${TERMINAL_COMMAND:="$TERMINAL -e"}"
 GLYPH_COMMAND="${GLYPH_COMMAND-  }"
 GLYPH_DESKTOP="${GLYPH_DESKTOP-  }"
@@ -20,6 +21,9 @@ PROVIDERS_FILE="${PROVIDERS_FILE:=providers.conf}"
 if [[ "${PROVIDERS_FILE#/}" == "${PROVIDERS_FILE}" ]]; then
   # $PROVIDERS_FILE is a relative path, prepend $CONFIG_DIR
   PROVIDERS_FILE="${CONFIG_DIR}/${PROVIDERS_FILE}"
+fi
+if [[ ! -v PREVIEW_WINDOW ]]; then
+    PREVIEW_WINDOW=up:2:noborder
 fi
 
 # Provider config entries are separated by the field separator \034 and have the following structure:
@@ -101,8 +105,9 @@ function list-entries() {
       DIRS[$i]="${DIRS[i]}/applications/**/*.desktop"
     fi
   done
+
   # shellcheck disable=SC2068
-  entries ${DIRS[@]}
+  entries ${DIRS[@]} | sort -k2
 }
 function entries() {
   # shellcheck disable=SC2068
@@ -315,10 +320,10 @@ for PROVIDER_NAME in "${!PROVIDERS[@]}"; do
 done
 
 readarray -t COMMAND_STR <<<$(
-  fzf --ansi +s -x -d '\034' --nth ..3 --with-nth 3 \
+  ${FZF_COMMAND} --ansi +s -x -d '\034' --nth ..3 --with-nth 3 \
     --print-query \
     --preview "$0 describe {2} {1}" \
-    --preview-window=up:2:noborder \
+    --preview-window="${PREVIEW_WINDOW}" \
     --no-multi --cycle \
     --prompt="${GLYPH_PROMPT-# }" \
     --header='' --no-info --margin='1,2' \
